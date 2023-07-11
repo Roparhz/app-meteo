@@ -1,5 +1,6 @@
-package com.julien.leveque.cdaproject;
+package com.julien.leveque.cdaproject.activites;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -10,22 +11,34 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.julien.leveque.cdaproject.R;
+import com.julien.leveque.cdaproject.activites.FavoriteActivity;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+
 public class MainActivity extends AppCompatActivity {
 
     private TextView mTextViewCityName;
     private EditText mTextViewMessage;
+    private FloatingActionButton mFloatingButtonFavorite;
+    private Context mContext;
+
+    private OkHttpClient mOkHttpClient;
+
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mContext = this;
 
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(
                 Context.CONNECTIVITY_SERVICE);
@@ -40,37 +53,22 @@ public class MainActivity extends AppCompatActivity {
             Log.d("TEST", "internet ko");
         }
 
+        mFloatingButtonFavorite = (FloatingActionButton) findViewById(R.id.floating_action_button_favorite);
         mTextViewCityName =  findViewById(R.id.text_view_city_name);
         mTextViewCityName.setText(R.string.city_name);
         Toast.makeText(this, "New York", Toast.LENGTH_SHORT).show();
 
-
-        Button button = findViewById(R.id.button_fav2);
-        button.setOnClickListener( view -> {
-            Toast.makeText(this, "clic sur le bouton 2", Toast.LENGTH_SHORT).show();
+        mFloatingButtonFavorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, FavoriteActivity.class);
+                startActivity(intent);
+            }
         });
+
         Log.d("TAGG", "MainActivity: onCreate()");
 
         mTextViewMessage = findViewById(R.id.edit_text_message);
-    }
-
-
-    public void clickBtn1(View view){
-        Button button = (Button) view;
-
-        String message;
-        if (button.getId() == R.id.button_fav1) {
-            message = "Clic sur Bouton 1";
-        } else if (button.getId() == R.id.button_fav3) {
-            message = "Clic sur Bouton 3";
-            Intent intent = new Intent(this, FavoriteActivity.class);
-            intent.putExtra("key", mTextViewMessage.getText().toString());
-            startActivity(intent);
-        } else {
-            message = "Clic sur un bouton inconnu";
-        }
-
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
 
     }
 
