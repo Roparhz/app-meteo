@@ -19,18 +19,28 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.julien.leveque.cdaproject.R;
 import com.julien.leveque.cdaproject.activites.FavoriteActivity;
+import com.julien.leveque.cdaproject.models.City;
 
+import org.json.JSONException;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView mTextViewCityName;
+    private TextView mTextViewCityDescription;
+    private TextView mTextViewCityTemperature;
     private EditText mTextViewMessage;
     private FloatingActionButton mFloatingButtonFavorite;
     private Context mContext;
+    private City mCurrentCity;
 
-    private OkHttpClient mOkHttpClient;
 
 
     @SuppressLint("MissingInflatedId")
@@ -47,16 +57,49 @@ public class MainActivity extends AppCompatActivity {
 
         if (networkInfo != null && networkInfo.isConnected()) {
             relativeLayout.setVisibility(RelativeLayout.VISIBLE);
-            Log.d("TAG", "internet ok");
+            Log.d("NIKTAM", "internet ok");
         } else {
             relativeLayout.setVisibility(RelativeLayout.INVISIBLE);
-            Log.d("TEST", "internet ko");
+            Log.d("NIKTAM", "internet ko");
         }
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url("https://api.openweathermap.org/data/2.5/weather?lat=47.390026&lon=0.688891&appid=01897e4\n" +
+                        "97239c8aff78d9b8538fb24ea&units=metric&lang=fr")
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                String strJson = response.body().string();
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        updateUi(strJson);
+                    }
+                });
+                Log.d("TAG", "onResponse: " + strJson);
+            }
+        });
+
+
 
         mFloatingButtonFavorite = (FloatingActionButton) findViewById(R.id.floating_action_button_favorite);
         mTextViewCityName =  findViewById(R.id.text_view_city_name);
         mTextViewCityName.setText(R.string.city_name);
-        Toast.makeText(this, "New York", Toast.LENGTH_SHORT).show();
+
+        mTextViewCityDescription = findViewById(R.id.text_view_city_description);
+        mTextViewCityDescription.setText(R.string.city_desc);
+
+        mTextViewCityTemperature = findViewById(R.id.text_view_city_temperature);
+        mTextViewCityTemperature.setText(R.string.city_temp);
+
+
+
 
         mFloatingButtonFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,6 +112,19 @@ public class MainActivity extends AppCompatActivity {
         Log.d("TAGG", "MainActivity: onCreate()");
 
         mTextViewMessage = findViewById(R.id.edit_text_message);
+
+    }
+    public void updateUi(String strJson){
+        try {
+            mCurrentCity = new City(strJson);
+            mTextViewCityName.setText(mCurrentCity.mName);
+            mTextViewCityDescription.setText(mCurrentCity.mDescription);
+            mTextViewCityTemperature.setText(mCurrentCity.mTemperature);
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
 
     }
 

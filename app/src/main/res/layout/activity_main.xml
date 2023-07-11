@@ -29,7 +29,8 @@
             android:layout_height="wrap_content"
             android:paddingBottom="16dp"
             android:textColor="@color/white"
-            android:text="@string/city_desc" />
+            android:id="@+id/text_view_city_description"
+            android:textSize="40sp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -52,7 +53,7 @@
                 android:layout_marginEnd="10dp"
                 android:textColor="@color/white"
                 android:textSize="@dimen/text_size_medium"
-                android:text="@string/city_temp"
+                android:id="@+id/text_view_city_temperature"
                 tools:ignore="SpUsage" />
         </LinearLayout>
     </LinearLayout>

@@ -137,8 +137,6 @@ public class FavoriteActivity extends AppCompatActivity {
         mCities.add(city3);
         mCities.add(city4);
 
-
-
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_favorite);
 
         mLayoutManager = new LinearLayoutManager(this);
