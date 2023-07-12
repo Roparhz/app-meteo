@@ -14,11 +14,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.julien.leveque.cdaproject.R;
-import com.julien.leveque.cdaproject.activites.FavoriteActivity;
 import com.julien.leveque.cdaproject.models.City;
 
 import org.json.JSONException;
@@ -97,10 +95,6 @@ public class MainActivity extends AppCompatActivity {
 
         mTextViewCityTemperature = findViewById(R.id.text_view_city_temperature);
         mTextViewCityTemperature.setText(R.string.city_temp);
-
-
-
-
         mFloatingButtonFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

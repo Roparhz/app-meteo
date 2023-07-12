@@ -9,6 +9,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -26,7 +27,16 @@ import com.julien.leveque.cdaproject.adapters.FavoriteAdapter;
 import com.julien.leveque.cdaproject.databinding.ActivityFavoriteBinding;
 import com.julien.leveque.cdaproject.models.City;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 
 public class FavoriteActivity extends AppCompatActivity {
 
@@ -38,6 +48,10 @@ public class FavoriteActivity extends AppCompatActivity {
     private FavoriteAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private Context mContext;
+    private City mCurrentCity;
+    private TextView mTextViewCityName;
+    private TextView mTextViewCityDescription;
+    private TextView mTextViewCityTemperature;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +94,6 @@ public class FavoriteActivity extends AppCompatActivity {
                 builder.create().show();
             }
         });
-        Log.d("TAGG", "FavoriteActivity: onCreate()");
         Bundle bundle = getIntent().getExtras();
 
         if (bundle != null) {
@@ -92,50 +105,10 @@ public class FavoriteActivity extends AppCompatActivity {
 
         mCities = new ArrayList<>();
 
-        City city1 = new City("Montréal", "Légères pluies", "22°C", R.drawable.weather_rainy_grey);
-        City city2 = new City("New York", "Ensoleillé", "22°C", R.drawable.weather_sunny_grey);
-        City city3 = new City("Tours", "Nuageux", "24°C", R.drawable.weather_foggy_grey);
-        City city4 = new City("Toulouse", "Pluies modérées", "20°C", R.drawable.weather_rainy_grey);
-        mCities.add(city1);
-        mCities.add(city2);
-        mCities.add(city3);
-        mCities.add(city4);
-        mCities.add(city1);
-        mCities.add(city2);
-        mCities.add(city3);
-        mCities.add(city4);
-        mCities.add(city1);
-        mCities.add(city2);
-        mCities.add(city3);
-        mCities.add(city4);
-        mCities.add(city1);
-        mCities.add(city2);
-        mCities.add(city3);
-        mCities.add(city4);
-        mCities.add(city1);
-        mCities.add(city2);
-        mCities.add(city3);
-        mCities.add(city4);
-        mCities.add(city1);
-        mCities.add(city2);
-        mCities.add(city3);
-        mCities.add(city4);
-        mCities.add(city1);
-        mCities.add(city2);
-        mCities.add(city3);
-        mCities.add(city4);
-        mCities.add(city1);
-        mCities.add(city2);
-        mCities.add(city3);
-        mCities.add(city4);
-        mCities.add(city1);
-        mCities.add(city2);
-        mCities.add(city3);
-        mCities.add(city4);
-        mCities.add(city1);
-        mCities.add(city2);
-        mCities.add(city3);
-        mCities.add(city4);
+
+
+
+
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_favorite);
 
@@ -147,10 +120,38 @@ public class FavoriteActivity extends AppCompatActivity {
         Log.d("TAG", "onCreate: ");
 
     }
+
+    public void updateUi(String strJson){
+        try {
+            City city = new City(strJson);
+            mCities.add(city);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
     public void updateWeatherDataCityName(final String cityName) {
-        City city = new City(cityName, "Ensoleillé", "28°C", R.drawable.weather_sunny_grey);
-        mCities.add(0, city);
-        mAdapter.notifyDataSetChanged();
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=01897e497239c8aff78d9b8538fb24ea&units=metric&lang=fr")
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                String strJson = response.body().string();
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        updateUi(strJson);
+                        mAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+        });
     }
     @Override
     public void onDestroy() {
